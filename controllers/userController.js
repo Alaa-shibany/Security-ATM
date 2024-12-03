@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {
   addUser,
@@ -6,7 +5,7 @@ const {
   findUserById,
 } = require("../models/userModel");
 
-const JWT_SECRET = "secretKey";
+const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 
 const registerUser = async (req, res) => {
   try {
@@ -15,8 +14,7 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: "Username already taken" });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = addUser(username, hashedPassword);
+    const newUser = addUser(username, password);
 
     const token = jwt.sign(
       { id: newUser.id, username: newUser.username },

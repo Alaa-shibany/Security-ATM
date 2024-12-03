@@ -1,29 +1,27 @@
-const jwt = require('jsonwebtoken');
-const { User, Token } = require('../models'); // Adjust path as needed
+const jwt = require("jsonwebtoken");
+const { User, Token } = require("../models");
 
-// Secret key for JWT verification (You should keep it secure in environment variables)
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 
-// Auth Middleware
 const authMiddleware = async (req, res, next) => {
   try {
     // Get token from Authorization header
-    const token = req.headers['authorization']?.split(' ')[1]; // Bearer <token>
+    const token = req.headers["authorization"]?.split(" ")[1]; // Bearer <token>
 
     if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
+      return res.status(401).json({ message: "No token provided" });
     }
 
     // Verify token
     jwt.verify(token, JWT_SECRET, async (err, decoded) => {
       if (err) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
+        return res.status(401).json({ message: "Invalid or expired token" });
       }
 
       // Find the user associated with the token
       const user = await User.findByPk(decoded.userId);
       if (!user) {
-        return res.status(401).json({ message: 'User not found' });
+        return res.status(401).json({ message: "User not found" });
       }
 
       // Check if the token exists in the database and is valid (not expired)
@@ -32,12 +30,12 @@ const authMiddleware = async (req, res, next) => {
       });
 
       if (!userToken) {
-        return res.status(401).json({ message: 'Token not found in database' });
+        return res.status(401).json({ message: "Token not found in database" });
       }
 
       // Check if the token is expired
       if (new Date() > new Date(userToken.expiresAt)) {
-        return res.status(401).json({ message: 'Token has expired' });
+        return res.status(401).json({ message: "Token has expired" });
       }
 
       // Attach user to request object for further use in the route
@@ -47,7 +45,7 @@ const authMiddleware = async (req, res, next) => {
       next(); // Proceed to the next middleware or route handler
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
