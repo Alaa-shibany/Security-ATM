@@ -1,7 +1,22 @@
-// بيانات المستخدم الافتراضية
-const users = {
-  alaa: { password: "12345", balance: 1000 },
-  bob: { password: "qwerty", balance: 1500 },
+const users = [];
+
+const addUser = (user) => {
+  users.push(user);
 };
 
-module.exports = users;
+const findUserByUsername = (username) => {
+  return users.find((user) => user.username === username);
+};
+
+const findUserByToken = (token) => {
+  return users.find((user) => user.token === token);
+};
+
+const getAllUsers = () => users;
+
+module.exports = {
+  addUser,
+  findUserByUsername,
+  findUserByToken,
+  getAllUsers,
+};

@@ -1,4 +1,3 @@
-// src/controllers/keyController.js
 const fs = require("fs");
 
 const getPublicKey = (req, res) => {
