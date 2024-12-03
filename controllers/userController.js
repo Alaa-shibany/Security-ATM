@@ -104,7 +104,6 @@ const loginUser = async (req, res) => {
 const getUserAccounts = async (req, res) => {
   try {
     const { userId } = req.params;
-
     const accounts = await Account.findAll({
       where: { userId },
       attributes: { exclude: ["createdAt", "updatedAt"] },

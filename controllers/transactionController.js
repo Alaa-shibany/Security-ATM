@@ -58,7 +58,6 @@ const getOperations = async (req, res) => {
       offset: parseInt(offset),
     });
 
-    // Return paginated response
     res.status(200).json({
       message: "Operations retrieved successfully",
       data: {
