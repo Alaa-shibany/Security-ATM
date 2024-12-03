@@ -1,12 +1,10 @@
+// src/routes/keyRoutes.js
 const express = require("express");
-const { publicKey } = require("../keys");
+const { getPublicKey } = require("../controllers/keyController");
 
 const router = express.Router();
 
-router.get("/public-key", (req, res) => {
-  console.log(publicKey);
-
-  res.status(200).send(publicKey.export({ type: "pkcs1", format: "pem" }));
-});
+// Route to retrieve the public key
+router.get("/public-key", getPublicKey);
 
 module.exports = router;
