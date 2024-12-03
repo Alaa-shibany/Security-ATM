@@ -9,15 +9,17 @@ const {
   decryptRequestBody,
   encryptResponseBody,
 } = require("./middleware/encryptionMiddleware");
+const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
 
-app.use(authMiddleware);
+app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/api/keys", keyRoutes);
 app.use("/api/users", decryptRequestBody, userRoutes, encryptResponseBody);
+app.use(authMiddleware);
 app.use(
   "/api/transactions",
   decryptRequestBody,
