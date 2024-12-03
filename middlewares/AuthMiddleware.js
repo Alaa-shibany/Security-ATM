@@ -9,7 +9,7 @@ const authMiddleware = async (req, res, next) => {
     const token = req.headers["authorization"]?.split(" ")[1]; // Bearer <token>
 
     if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+      return res.status(401).json({ message: "Unauthenticated" });
     }
 
     // Verify token
