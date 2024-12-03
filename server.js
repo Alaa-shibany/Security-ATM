@@ -3,10 +3,12 @@ const bodyParser = require("body-parser");
 const keyRoutes = require("./routes/keyRoutes");
 const { sequelize } = require("./models");
 const userRoutes = require("./routes/userRoutes");
+const authMiddleware = require("./middlewares/AuthMiddleware");
 
 const app = express();
 const PORT = 3000;
 
+app.use(authMiddleware);
 app.use(bodyParser.json());
 
 app.use("/api/keys", keyRoutes);
