@@ -1,27 +1,36 @@
 const { Account, Operation } = require("../models");
 
-const performTransaction = async (req, res) => {
+const performTransaction = async (req, res, next) => {
+  if (req.final.status !== 0) return next();
   const { accountId } = req.params;
   const { type, amount } = req.body;
   try {
     if (!["withdraw", "deposit"].includes(type)) {
-      return res.status(400).json({ message: "Invalid transaction type" });
+      req.final.status = 400;
+      req.final.data = { message: "Invalid transaction type" };
+      return next();
     }
     if (amount <= 0) {
-      return res.status(400).json({ message: "Amount must be greater than 0" });
+      req.final.status = 400;
+      req.final.data = { message: "Amount must be greater than 0" };
+      return next();
     }
 
     const account = await Account.findByPk(accountId);
     if (!account) {
-      return res.status(404).json({ message: "Account not found" });
+      req.final.status = 404;
+      req.final.data = { message: "Account not found" };
+      return next();
     }
     if (type === "withdraw") {
       if (account.balance < amount) {
-        return res.status(400).json({ message: "Insufficient balance" });
+        req.final.status = 400;
+        req.final.data = { message: "Insufficient balance" };
+        return next();
       }
       account.balance -= amount;
     } else if (type === "deposit") {
-      account.balance += amount;
+      account.balance = Number(account.balance) + Number(amount);
     }
     await account.save();
     const operation = await Operation.create({
@@ -29,7 +38,8 @@ const performTransaction = async (req, res) => {
       type,
       amount,
     });
-    return res.status(200).json({
+    req.final.status = 200;
+    req.final.data = {
       message: "Transaction successful",
       balance: account.balance,
       operation: {
@@ -38,38 +48,39 @@ const performTransaction = async (req, res) => {
         amount: operation.amount,
         timestamp: operation.timestamp,
       },
-    });
+    };
+    return next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    req.final.status = 500;
+    req.final.data = { message: "Internal server error" };
+    return next();
   }
 };
 
-const getOperations = async (req, res) => {
+const getOperations = async (req, res, next) => {
   try {
+    if (req.final.status !== 0) return next();
     const { accountId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
 
     const { count, rows } = await Operation.findAndCountAll({
       where: { accountId },
       order: [["timestamp", "DESC"]],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
     });
-
-    res.status(200).json({
+    req.final.status = 200;
+    req.final.data = {
       message: "Operations retrieved successfully",
       data: {
         totalOperations: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: parseInt(page),
         operations: rows,
       },
-    });
+    };
+    return next();
   } catch (error) {
     console.error("Error fetching operations:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    req.final.status = 500;
+    req.final.data = { message: "Internal Server Error" };
+    return next();
   }
 };
 
