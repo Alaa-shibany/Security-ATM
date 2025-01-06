@@ -4,11 +4,11 @@ const cors = require("cors");
 
 const { sequelize } = require("./models");
 
-const authMiddleware = require("./middlewares/AuthMiddleware");
 const {
   decryptRequestBody,
   encryptResponseBody,
-} = require("./middlewares/encryptionMiddleware");
+  authMiddleware,
+} = require("./middlewares");
 
 const keyRoutes = require("./routes/keyRoutes");
 const authRoutes = require("./routes/authRoutes");
