@@ -10,14 +10,17 @@ const Account = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
-    balance: {
-      type: DataTypes.DECIMAL(10, 2),
+    name: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 0.0,
-      validate: {
-        isDecimal: true,
-        min: 0,
-      },
+    },
+    pin: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    balance: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -39,6 +42,7 @@ const Account = sequelize.define(
 Account.associate = (models) => {
   Account.belongsTo(models.User, { foreignKey: "userId" });
   Account.hasMany(models.Operation, { foreignKey: "accountId" });
+  Account.hasMany(models.Booking, { foreignKey: "accountId" });
 };
 
 module.exports = Account;

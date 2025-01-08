@@ -21,9 +21,19 @@ const User = sequelize.define(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        len: [8, 100],
-      },
+    },
+    userType: {
+      type: DataTypes.ENUM("employee", "visitor"),
+      allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    carPlateNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   },
   {

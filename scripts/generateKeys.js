@@ -8,7 +8,7 @@ const generateKeys = () => {
 
   fs.writeFileSync(
     "keys/private.pem",
-    privateKey.export({ type: "pkcs1", format: "pem" })
+    privateKey.export({ type: "pkcs8", format: "pem" })
   );
   fs.writeFileSync(
     "keys/public.pem",

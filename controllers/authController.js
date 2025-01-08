@@ -5,16 +5,17 @@ const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 
 const registerUser = async (req, res, next) => {
   if (req.final.status !== 0) return next();
-  const { username, password } = req.body;
+  const { username, password, userType, phone, carPlateNumber } = req.body;
 
   try {
-    const existingUser = await User.findOne({ where: { username } });
-    if (existingUser) {
+    const existingUsername = await User.findOne({ where: { username } });
+    const existingPhone = await User.findOne({ where: { phone } });
+    if (existingUsername || existingPhone) {
       req.final.status = 400;
-      req.final.data = { message: "Username already exists" };
+      req.final.data = { message: "Username Or phone already exists" };
       return next();
     }
-    const newUser = await User.create({ username, password });
+    const newUser = await User.create({ username, password, userType, phone, carPlateNumber});
 
     const token = jwt.sign(
       { id: newUser.id, username: newUser.username },
@@ -22,14 +23,21 @@ const registerUser = async (req, res, next) => {
       { expiresIn: "1h" }
     );
     const formattedToken = `${newUser.id}|${token}`;
+    //TODO:add real session key
     await Token.create({
       userId: newUser.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      sessionKey: "ehboood"
     });
+
+    const {accountName, pin} = req.body;
+
     const account = await Account.create({
       userId: newUser.id,
       balance: 0,
+      name: accountName,
+      pin: pin
     });
     req.final.status = 201;
     req.final.data = {
@@ -37,10 +45,13 @@ const registerUser = async (req, res, next) => {
       user: {
         id: newUser.id,
         username: newUser.username,
+        phone: newUser.phone,
+        carPlateNumber: newUser.carPlateNumber
       },
       account: {
         id: account.id,
-        balance: account.balance,
+        name: account.name,
+        balance: account.balance
       },
       token: formattedToken,
     };
@@ -84,10 +95,12 @@ const loginUser = async (req, res, next) => {
 
     const formattedToken = `${user.id}|${rawToken}`;
 
+    //TODO:add real session key
     await Token.create({
       userId: user.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
+      sessionKey: "ehboood"
     });
 
     // Return the response
