@@ -6,7 +6,7 @@ const {
 
 const router = express.Router();
 
-router.post("/accounts", getUserAccounts);
-router.post("/accounts/new", createAccountForUser);
+router.post("/", getUserAccounts);
+router.post("/new", createAccountForUser);
 
 module.exports = router;

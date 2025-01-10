@@ -7,7 +7,7 @@ const validationMiddleware = (req, res, next) => {
   } else {
     const errors = result.array();
     req.final.status = 400;
-    req.final.body = errors.map((e) => e.msg + " " + e.path);
+    req.final.data = { error: errors.map((e) => e.msg) };
   }
   return next();
 };
