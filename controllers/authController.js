@@ -6,15 +6,7 @@ const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 const registerUser = async (req, res, next) => {
   try {
     if (req.final.status !== 0) return next();
-    const {
-      username,
-      password,
-      userType,
-      phone,
-      carPlateNumber,
-      accountName,
-      pin,
-    } = req.body;
+    const { username, password, phone, carPlateNumber } = req.body;
     const existingUsername = await User.findOne({ where: { username } });
     const existingPhone = await User.findOne({ where: { phone } });
     if (existingUsername || existingPhone) {
@@ -25,7 +17,7 @@ const registerUser = async (req, res, next) => {
     const newUser = await User.create({
       username,
       password,
-      userType,
+      userType: "visitor",
       phone,
       carPlateNumber,
     });
@@ -44,12 +36,6 @@ const registerUser = async (req, res, next) => {
       sessionKey: "ehboood",
     });
 
-    const account = await Account.create({
-      userId: newUser.id,
-      balance: 0,
-      name: accountName,
-      pin: pin,
-    });
     req.final.status = 201;
     req.final.data = {
       message: "User registered successfully",
@@ -58,11 +44,6 @@ const registerUser = async (req, res, next) => {
         username: newUser.username,
         phone: newUser.phone,
         carPlateNumber: newUser.carPlateNumber,
-      },
-      account: {
-        id: account.id,
-        name: account.name,
-        balance: account.balance,
       },
       token: formattedToken,
     };
@@ -91,12 +72,6 @@ const loginUser = async (req, res, next) => {
       req.final.data = { message: "Invalid credentials" };
       return next();
     }
-    const account = await Account.findOne({ where: { userId: user.id } });
-    if (!account) {
-      req.final.status = 404;
-      req.final.data = { message: "Account not found for this user" };
-      return next();
-    }
 
     const rawToken = jwt.sign(
       { id: user.id, username: user.username },
@@ -121,10 +96,6 @@ const loginUser = async (req, res, next) => {
       user: {
         id: user.id,
         username: user.username,
-      },
-      account: {
-        id: account.id,
-        balance: account.balance,
       },
       token: formattedToken,
     };
