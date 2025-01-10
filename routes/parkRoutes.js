@@ -2,9 +2,13 @@ const router = require("express").Router();
 
 const { body, param } = require("express-validator");
 const parkController = require("../controllers/parkController");
-const { validationMiddleware } = require("../middlewares");
+const {
+  validationMiddleware,
+  isEmployeeMiddleware,
+} = require("../middlewares");
 
 router.get("/all", parkController.all);
+router.use(isEmployeeMiddleware);
 router.post(
   "/add",
   [

@@ -1,4 +1,8 @@
-const { authMiddleware } = require("./AuthMiddleware");
+const {
+  authMiddleware,
+  isAdminMiddleware,
+  isEmployeeMiddleware,
+} = require("./AuthMiddleware");
 const {
   encryptResponseBody,
   decryptRequestBody,
@@ -10,4 +14,6 @@ module.exports = {
   encryptResponseBody,
   decryptRequestBody,
   validationMiddleware,
+  isAdminMiddleware,
+  isEmployeeMiddleware,
 };

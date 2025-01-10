@@ -4,10 +4,17 @@ const { User, Account, Token } = require("../models");
 const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 
 const registerUser = async (req, res, next) => {
-  if (req.final.status !== 0) return next();
-  const { username, password, userType, phone, carPlateNumber } = req.body;
-
   try {
+    if (req.final.status !== 0) return next();
+    const {
+      username,
+      password,
+      userType,
+      phone,
+      carPlateNumber,
+      accountName,
+      pin,
+    } = req.body;
     const existingUsername = await User.findOne({ where: { username } });
     const existingPhone = await User.findOne({ where: { phone } });
     if (existingUsername || existingPhone) {
@@ -15,7 +22,13 @@ const registerUser = async (req, res, next) => {
       req.final.data = { message: "Username Or phone already exists" };
       return next();
     }
-    const newUser = await User.create({ username, password, userType, phone, carPlateNumber});
+    const newUser = await User.create({
+      username,
+      password,
+      userType,
+      phone,
+      carPlateNumber,
+    });
 
     const token = jwt.sign(
       { id: newUser.id, username: newUser.username },
@@ -28,16 +41,14 @@ const registerUser = async (req, res, next) => {
       userId: newUser.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      sessionKey: "ehboood"
+      sessionKey: "ehboood",
     });
-
-    const {accountName, pin} = req.body;
 
     const account = await Account.create({
       userId: newUser.id,
       balance: 0,
       name: accountName,
-      pin: pin
+      pin: pin,
     });
     req.final.status = 201;
     req.final.data = {
@@ -46,12 +57,12 @@ const registerUser = async (req, res, next) => {
         id: newUser.id,
         username: newUser.username,
         phone: newUser.phone,
-        carPlateNumber: newUser.carPlateNumber
+        carPlateNumber: newUser.carPlateNumber,
       },
       account: {
         id: account.id,
         name: account.name,
-        balance: account.balance
+        balance: account.balance,
       },
       token: formattedToken,
     };
@@ -100,7 +111,7 @@ const loginUser = async (req, res, next) => {
       userId: user.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
-      sessionKey: "ehboood"
+      sessionKey: "ehboood",
     });
 
     // Return the response

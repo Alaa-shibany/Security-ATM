@@ -6,11 +6,12 @@ const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 const authMiddleware = async (req, res, next) => {
   try {
     // Get token from Authorization header
+    if (req.final.status !== 0) return next();
     const token = req.headers["authorization"]?.split(" ")[1]; // Bearer <token>
 
     if (!token) {
       req.final.status = 401;
-      req.final.data = { message: "Unauthenticated" };
+      req.final.data = { error: "Unauthenticated" };
       return next();
     }
 
@@ -21,7 +22,7 @@ const authMiddleware = async (req, res, next) => {
     jwt.verify(jwtToken, JWT_SECRET, async (err, decoded) => {
       if (err) {
         req.final.status = 401;
-        req.final.data = { message: "Invalid or expired token" };
+        req.final.data = { error: "Invalid or expired token" };
         return next();
       }
 
@@ -29,7 +30,7 @@ const authMiddleware = async (req, res, next) => {
       const user = await User.findByPk(userId);
       if (!user) {
         req.final.status = 401;
-        req.final.data = { message: "User not found" };
+        req.final.data = { error: "User not found" };
         return next();
       }
 
@@ -40,14 +41,14 @@ const authMiddleware = async (req, res, next) => {
 
       if (!userToken) {
         req.final.status = 401;
-        req.final.data = { message: "Token not found in database" };
+        req.final.data = { error: "Token not found in database" };
         return next();
       }
 
       // Check if the token is expired
       if (new Date() > new Date(userToken.expiresAt)) {
         req.final.status = 401;
-        req.final.data = { message: "Token has expired" };
+        req.final.data = { error: "Token has expired" };
         return next();
       }
 
@@ -66,4 +67,38 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = { authMiddleware };
+const isAdminMiddleware = async (req, res, next) => {
+  try {
+    if (req.final.status !== 0) return next();
+    if (req.user.userType !== "admin") {
+      req.final.status = 403;
+      req.final.data = { message: "Forbidden Operation" };
+    }
+    return next();
+  } catch (error) {
+    console.log(error);
+
+    req.final.status = 500;
+    req.final.data = { message: "Internal server error" };
+    return next();
+  }
+};
+
+const isEmployeeMiddleware = async (req, res, next) => {
+  try {
+    if (req.final.status !== 0) return next();
+    if (req.user.userType !== "employee" && req.user.userType !== "admin") {
+      req.final.status = 403;
+      req.final.data = { message: "Forbidden Operation" };
+    }
+    return next();
+  } catch (error) {
+    console.log(error);
+
+    req.final.status = 500;
+    req.final.data = { message: "Internal server error" };
+    return next();
+  }
+};
+
+module.exports = { authMiddleware, isAdminMiddleware, isEmployeeMiddleware };

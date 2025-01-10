@@ -21,13 +21,17 @@ const {
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:8000",
+  })
+);
 app.use(bodyParser.json());
 
 app.use("/key", keyRoutes);
 app.use(decryptRequestBody);
 app.use("/auth", authRoutes);
-//app.use(authMiddleware);
+app.use(authMiddleware);
 app.use("/accounts", userRoutes);
 app.use("/accounts", transactionRoutes);
 app.use("/park", parkRoutes);
