@@ -19,7 +19,7 @@ const Parking = sequelize.define(
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
