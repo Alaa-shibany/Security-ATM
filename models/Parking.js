@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("./config/DBconfig");
 
 const Parking = sequelize.define(
-  "Parking", 
+  "Parking",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -15,7 +15,7 @@ const Parking = sequelize.define(
       allowNull: false,
       validate: {
         min: 0,
-      }
+      },
     },
     name: {
       type: DataTypes.STRING,
@@ -24,7 +24,11 @@ const Parking = sequelize.define(
     description: {
       type: DataTypes.STRING,
       allowNull: true,
-    }
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
@@ -33,7 +37,7 @@ const Parking = sequelize.define(
 );
 
 Parking.associate = (models) => {
-  Parking.hasMany(models.Booking, { foreignKey: "parkingId" })
+  Parking.hasMany(models.Booking, { foreignKey: "parkingId" });
 };
 
 module.exports = Parking;
