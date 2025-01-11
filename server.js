@@ -15,7 +15,7 @@ const {
   keyRoutes,
   parkRoutes,
   transactionRoutes,
-  userRoutes,
+  userRoutes,reservationRouter
 } = require("./routes");
 
 const app = express();
@@ -35,6 +35,7 @@ app.use(authMiddleware);
 app.use("/accounts", userRoutes);
 app.use("/accounts", transactionRoutes);
 app.use("/park", parkRoutes);
+app.use("/park", reservationRouter);
 app.use("/*", (req, res, next) => {
   if (req.final.status != 0) return next();
   req.final.status = 404;
