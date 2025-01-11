@@ -63,7 +63,7 @@ const loginUser = async (req, res, next) => {
     const user = await User.findOne({ where: { username } });
     if (!user) {
       req.final.status = 404;
-      req.final.data = { message: "User not found" };
+      req.final.data = { message: "Invalid credentials" };
       return next();
     }
     const isPasswordValid = password === user.password;
