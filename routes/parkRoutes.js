@@ -8,6 +8,17 @@ const {
 } = require("../middlewares");
 
 router.get("/all", parkController.all);
+router.get(
+  "/show/:parkId",
+  [
+    param("parkId", "parkId is missing")
+      .custom((input) => {
+        return typeof input === "string" && !isNaN(Number(input));
+      })
+      .withMessage("parkId must be a string"),
+  ],
+  parkController.show
+);
 router.use(isEmployeeMiddleware);
 router.post(
   "/add",

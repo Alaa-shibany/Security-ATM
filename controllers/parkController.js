@@ -9,7 +9,46 @@ async function all(req, res, next) {
     const parks = await Parking.findAll({
       include: {
         model: Booking,
+        required: false,
+      },
+    });
 
+    const currentTime = moment();
+
+    for (const park of parks) {
+      let status = "free";
+
+      park.dataValues.rentTime = park.dataValues.Bookings;
+      delete park.dataValues.Bookings;
+      for (const booking of park.dataValues.rentTime) {
+        const startTime = moment(booking.startTime);
+        const endTime = moment(booking.endTime);
+
+        if (currentTime.isBetween(startTime, endTime, null, "[)")) {
+          status = "reserved";
+          break;
+        }
+      }
+
+      park.dataValues.status = status;
+    }
+
+    req.final.data = { parks };
+    req.final.status = 200;
+    return next();
+  } catch (e) {
+    req.final.data = { error: e };
+    req.final.status = 500;
+    return next();
+  }
+}
+
+async function show(req, res, next) {
+  try {
+    if (req.final.status !== 0) return next();
+    const parks = await Parking.findByPk(parkId, {
+      include: {
+        model: Booking,
         required: false,
       },
     });
@@ -183,6 +222,7 @@ async function reservePark(req, res, next) {
 
 module.exports = {
   all,
+  show,
   addPark,
   editPark,
   deletePark,
