@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { Parking, Booking, User } = require("../models");
+const { Parking, Booking, User, Account } = require("../models");
 const { isTimeIntersecting } = require("../utils");
 const { Op } = require("sequelize");
 
@@ -32,12 +32,22 @@ async function all(req, res, next) {
 
       park.dataValues.status = status;
     }
+    for (const park of parks) {
+      park.dataValues.rentTime = park.dataValues.rentTime.map((booking) => {
+        const data = {};
+        const startTime = moment(booking.startTime);
+        const endTime = moment(booking.endTime);
+        data.startTime = startTime;
+        data.duration = endTime.diff(startTime, "hours");
+        return data;
+      });
+    }
 
     req.final.data = { parks };
     req.final.status = 200;
     return next();
   } catch (e) {
-    req.final.data = { error: e };
+    req.final.data = { error: e.message };
     req.final.status = 500;
     return next();
   }
@@ -46,7 +56,7 @@ async function all(req, res, next) {
 async function show(req, res, next) {
   try {
     if (req.final.status !== 0) return next();
-    const parks = await Parking.findByPk(parkId, {
+    const park = await Parking.findByPk(parkId, {
       include: {
         model: Booking,
         required: false,
@@ -55,29 +65,36 @@ async function show(req, res, next) {
 
     const currentTime = moment();
 
-    for (const park of parks) {
-      let status = "free";
+    let status = "free";
 
-      park.dataValues.rentTime = park.dataValues.Bookings;
-      delete park.dataValues.Bookings;
-      for (const booking of park.dataValues.rentTime) {
-        const startTime = moment(booking.startTime);
-        const endTime = moment(booking.endTime);
+    park.dataValues.rentTime = park.dataValues.Bookings;
+    delete park.dataValues.Bookings;
+    for (const booking of park.dataValues.rentTime) {
+      const startTime = moment(booking.startTime);
+      const endTime = moment(booking.endTime);
 
-        if (currentTime.isBetween(startTime, endTime, null, "[)")) {
-          status = "reserved";
-          break;
-        }
+      if (currentTime.isBetween(startTime, endTime, null, "[)")) {
+        status = "reserved";
+        break;
       }
-
-      park.dataValues.status = status;
     }
 
-    req.final.data = { parks };
+    park.dataValues.status = status;
+
+    park.dataValues.rentTime = park.dataValues.rentTime.map((booking) => {
+      const data = {};
+      const startTime = moment(booking.startTime);
+      const endTime = moment(booking.endTime);
+      data.startTime = startTime;
+      data.duration = endTime.diff(startTime, "hours");
+      return data;
+    });
+
+    req.final.data = { park };
     req.final.status = 200;
     return next();
   } catch (e) {
-    req.final.data = { error: e };
+    req.final.data = { error: e.message };
     req.final.status = 500;
     return next();
   }
@@ -97,7 +114,7 @@ async function addPark(req, res, next) {
     req.final.status = 200;
     return next();
   } catch (e) {
-    req.final.data = { error: e };
+    req.final.data = { error: e.message };
     req.final.status = 500;
     return next();
   }
@@ -124,7 +141,7 @@ async function editPark(req, res, next) {
     req.final.status = 200;
     return next();
   } catch (e) {
-    req.final.data = { error: e };
+    req.final.data = { error: e.message };
     req.final.status = 500;
     return next();
   }
@@ -145,7 +162,7 @@ async function deletePark(req, res, next) {
     req.final.status = 200;
     return next();
   } catch (e) {
-    req.final.data = { error: e };
+    req.final.data = { error: e.message };
     req.final.status = 500;
     return next();
   }
@@ -179,6 +196,12 @@ async function reservePark(req, res, next) {
       req.final.status = 500;
       return next();
     }
+    const price = duration * park.price;
+    if (account.balance < price) {
+      req.final.data = { error: "Insufficient Funds" };
+      req.final.status = 401;
+      return next();
+    }
 
     const bookings = await Booking.findAll({
       where: {
@@ -189,9 +212,7 @@ async function reservePark(req, res, next) {
       },
     });
 
-    const startTime = new Date(date + " " + time.split(" ")[1]).toLocaleString(
-      "sv-Se"
-    );
+    const startTime = new Date(date + " " + time).toLocaleString("sv-Se");
     const endTime = moment(new Date(startTime))
       .add(duration, "hours")
       .toLocaleString("sv-Se");
@@ -209,12 +230,22 @@ async function reservePark(req, res, next) {
       endTime,
       cost: duration * park.price,
     });
+    Account.update(
+      {
+        balance: account.balance - price,
+      },
+      {
+        where: {
+          id: account.id,
+        },
+      }
+    );
 
     req.final.data = { booking };
     req.final.status = 200;
     return next();
   } catch (e) {
-    req.final.data = { error: e };
+    req.final.data = { error: e.message };
     req.final.status = 500;
     return next();
   }
