@@ -10,7 +10,24 @@ const decryptRequestBody = (req, res, next) => {
 
   try {
     if (encryptedData) {
-      req.body = encryptedData;
+      const jsEncrypt = new JSEncrypt({ default_key_size: "2048" });
+      jsEncrypt.setPrivateKey(serverPrivateKey);
+
+      const decryptedData = [];
+      for (const chunk of encryptedData) {
+        const decStr = jsEncrypt.decrypt(chunk);
+        if (decStr === false) {
+          throw new Error("error while encryption data.");
+        }
+
+        decryptedData.push(decStr);
+      }
+
+      const data = JSON.parse(decryptedData.join(""));
+      req.userPublicKey = data.publicKey;
+
+      delete data.publicKey;
+      req.body = data;
     }
     req.final = { data: {}, status: 0 };
     next();
@@ -23,8 +40,27 @@ const decryptRequestBody = (req, res, next) => {
 // Middleware to encrypt the response body
 const encryptResponseBody = (req, res, next) => {
   try {
-    // Send the encrypted response
-    res.status(req.final.status).json(req.final.data);
+    const data = JSON.stringify(req.final.data);
+
+    const jsEncrypt = new JSEncrypt({ default_key_size: "2048" });
+
+    jsEncrypt.setPublicKey(req.userPublicKey);
+
+    const encryptedData = [];
+
+    for (let i = 0; i <= Math.floor(data.length / 100); i++) {
+      const str = data.slice(i * 100, (i + 1) * 100);
+      console.log(str);
+
+      const encStr = jsEncrypt.encrypt(str);
+
+      if (encStr === false) {
+        throw new Error("error while encryption data.");
+      }
+      encryptedData.push(encStr);
+    }
+
+    res.status(req.final.status).json({ encryptedData });
   } catch (error) {
     console.error("Error encrypting response:", error);
     res.status(500).json({

@@ -1,21 +1,11 @@
 const fs = require("fs");
-const crypto = require("crypto");
+const JSEncrypt = require("node-jsencrypt");
 
-const generateKeys = () => {
-  const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-    modulusLength: 2048,
-  });
+const jsEncrypt = new JSEncrypt({ default_key_size: "2048" }).getKey();
+const publicKey = jsEncrypt.getPublicKey();
+const privateKey = jsEncrypt.getPrivateKey();
 
-  fs.writeFileSync(
-    "keys/private.pem",
-    privateKey.export({ type: "pkcs8", format: "pem" })
-  );
-  fs.writeFileSync(
-    "keys/public.pem",
-    publicKey.export({ type: "spki", format: "pem" })
-  );
+fs.appendFileSync("keys/private.pem", privateKey);
+fs.appendFileSync("keys/public.pem", publicKey);
 
-  console.log('RSA Key pair generated and saved in the "keys/" directory.');
-};
-
-generateKeys();
+console.log('RSA Key pair generated and saved in the "keys/" directory.');

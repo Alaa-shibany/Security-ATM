@@ -7,6 +7,7 @@ const registerUser = async (req, res, next) => {
   try {
     if (req.final.status !== 0) return next();
     const { username, password, phone, carPlateNumber } = req.body;
+    const publicKey = req.userPublicKey;
     const existingUsername = await User.findOne({ where: { username } });
     const existingPhone = await User.findOne({ where: { phone } });
     if (existingUsername || existingPhone) {
@@ -34,6 +35,7 @@ const registerUser = async (req, res, next) => {
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       sessionKey: "ehboood",
+      publicKey,
     });
 
     req.final.status = 201;
@@ -59,6 +61,7 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   if (req.final.status !== 0) return next();
   const { username, password } = req.body;
+  const publicKey = req.userPublicKey;
   try {
     const user = await User.findOne({ where: { username } });
     if (!user) {
@@ -87,9 +90,11 @@ const loginUser = async (req, res, next) => {
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
       sessionKey: "ehboood",
+      publicKey,
     });
 
     // Return the response
+    req.userPublicKey = publicKey;
     req.final.status = 200;
     req.final.data = {
       message: "Login successful",

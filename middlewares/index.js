@@ -8,6 +8,7 @@ const {
   decryptRequestBody,
 } = require("./encryptionMiddleware");
 const { validationMiddleware } = require("./validationMiddleware");
+const { transactionalMiddleware } = require("./transactionalMiddleware");
 
 module.exports = {
   authMiddleware,
@@ -16,4 +17,5 @@ module.exports = {
   validationMiddleware,
   isAdminMiddleware,
   isEmployeeMiddleware,
+  transactionalMiddleware,
 };

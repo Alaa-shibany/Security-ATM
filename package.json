@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon node server.js",
+    "generate-keys": "node scripts/generateKeys",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

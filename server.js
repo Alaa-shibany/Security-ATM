@@ -8,6 +8,7 @@ const {
   decryptRequestBody,
   encryptResponseBody,
   authMiddleware,
+  transactionalMiddleware,
 } = require("./middlewares");
 
 const {
@@ -28,6 +29,7 @@ app.use(
 );
 app.use(bodyParser.json());
 
+app.use(transactionalMiddleware);
 app.use("/key", keyRoutes);
 app.use(decryptRequestBody);
 app.use("/auth", authRoutes);
@@ -44,7 +46,7 @@ app.use("/*", (req, res, next) => {
 app.use(encryptResponseBody);
 
 app.listen(PORT, async () => {
-  await sequelize.sync({ force: false, alter: false });
+  await sequelize.sync({ force: false, alter: false, logging: false });
 
   console.log(`Server is running on port ${PORT}`);
 });
