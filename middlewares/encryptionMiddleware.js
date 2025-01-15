@@ -50,7 +50,6 @@ const encryptResponseBody = (req, res, next) => {
 
     for (let i = 0; i <= Math.floor(data.length / 100); i++) {
       const str = data.slice(i * 100, (i + 1) * 100);
-      console.log(str);
 
       const encStr = jsEncrypt.encrypt(str);
 
