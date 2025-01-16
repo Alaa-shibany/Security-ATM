@@ -56,6 +56,7 @@ const authMiddleware = async (req, res, next) => {
       req.user = user;
       req.token = userToken; // Optionally include token info
       req.sessionKey = userToken.sessionKey;
+      req.userPublicKey = userToken.publicKey;
 
       next(); // Proceed to the next middleware or route handler
     });

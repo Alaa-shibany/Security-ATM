@@ -14,6 +14,7 @@ const {
   symmetricEncrypt,
 } = require("./symmetricEncryptionMiddleware");
 const { configMiddleware } = require("./configMiddleware");
+const { signMiddleware, verifyMiddleware } = require("./signatureMiddleware");
 
 module.exports = {
   authMiddleware,
@@ -26,4 +27,6 @@ module.exports = {
   symmetricDecrypt,
   symmetricEncrypt,
   configMiddleware,
+  signMiddleware,
+  verifyMiddleware,
 };

@@ -30,12 +30,12 @@ const registerUser = async (req, res, next) => {
       { expiresIn: "1h" }
     );
     const formattedToken = `${newUser.id}|${token}`;
-    //TODO:add real session key
     await Token.create({
       userId: newUser.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       sessionKey,
+      publicKey,
     });
 
     req.final.status = 201;
@@ -63,6 +63,7 @@ const loginUser = async (req, res, next) => {
   if (req.final.status !== 0) return next();
   const { username, password } = req.body;
   const sessionKey = req.sessionKey;
+  const publicKey = req.userPublicKey;
   try {
     const user = await User.findOne({ where: { username } });
     if (!user) {
@@ -102,6 +103,7 @@ const loginUser = async (req, res, next) => {
       },
       token: formattedToken,
       sessionKey,
+      publicKey,
     };
     return next();
   } catch (error) {

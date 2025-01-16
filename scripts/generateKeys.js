@@ -1,5 +1,5 @@
 const fs = require("fs");
-const JSEncrypt = require("node-jsencrypt");
+const { JSEncrypt } = require("nodejs-jsencrypt");
 
 const jsEncrypt = new JSEncrypt({ default_key_size: "2048" }).getKey();
 const publicKey = jsEncrypt.getPublicKey();

@@ -1,9 +1,9 @@
 const fs = require("fs");
-const JSEncrypt = require("node-jsencrypt");
-const crypto = require("crypto");
+const { JSEncrypt } = require("nodejs-jsencrypt");
 
 // Load the server's private key
 const serverPrivateKey = fs.readFileSync("./keys/private.pem", "utf8");
+
 const generateKey = () => {
   let res = "";
   for (let i = 0; i < 3; i++) {
@@ -14,7 +14,7 @@ const generateKey = () => {
 
 // Middleware to decrypt the request body
 const decryptRequestBody = (req, res, next) => {
-  const { encryptedData } = req.body;
+  const { encryptedData, signature } = req.body;
 
   try {
     const jsEncrypt = new JSEncrypt({ default_key_size: "2048" });
@@ -32,6 +32,7 @@ const decryptRequestBody = (req, res, next) => {
 
     const data = JSON.parse(decryptedData.join(""));
     req.userPublicKey = data.publicKey;
+    req.signature = signature;
     req.sessionKey = generateKey();
 
     delete data.publicKey;
@@ -48,6 +49,7 @@ const decryptRequestBody = (req, res, next) => {
 // Middleware to encrypt the response body
 const encryptResponseBody = (req, res, next) => {
   try {
+    const signature = req.signature;
     const data = JSON.stringify(req.final.data);
 
     const jsEncrypt = new JSEncrypt({ default_key_size: "2048" });
@@ -67,7 +69,7 @@ const encryptResponseBody = (req, res, next) => {
       encryptedData.push(encStr);
     }
 
-    res.status(req.final.status).json({ encryptedData });
+    res.status(req.final.status).json({ encryptedData, signature });
   } catch (error) {
     console.error("Error encrypting response:", error);
     res.status(500).json({
