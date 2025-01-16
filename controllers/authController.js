@@ -91,6 +91,7 @@ const loginUser = async (req, res, next) => {
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
       sessionKey,
+      publicKey,
     });
 
     // Return the response
@@ -103,7 +104,6 @@ const loginUser = async (req, res, next) => {
       },
       token: formattedToken,
       sessionKey,
-      publicKey,
     };
     return next();
   } catch (error) {
