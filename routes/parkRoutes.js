@@ -1,13 +1,25 @@
 const router = require("express").Router();
 
-const { body, param } = require("express-validator");
+const { body, param, query } = require("express-validator");
 const parkController = require("../controllers/parkController");
 const {
   validationMiddleware,
   isEmployeeMiddleware,
 } = require("../middlewares");
 
-router.get("/all", parkController.all);
+router.get(
+  "/all",
+  [
+    query("search").optional().isString(),
+    query("date").optional().isDate().withMessage("date must be a date"),
+    query("time")
+      .optional()
+      .isTime({ hourFormat: "hour24", mode: "withSeconds" })
+      .withMessage("date must be a date"),
+  ],
+  validationMiddleware,
+  parkController.all
+);
 router.get(
   "/show/:parkId",
   [

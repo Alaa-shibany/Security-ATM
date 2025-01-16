@@ -6,20 +6,64 @@ const { Op } = require("sequelize");
 async function all(req, res, next) {
   try {
     if (req.final.status !== 0) return next();
+    const { search, date, time } = req.body;
+    req.body = {};
+
+    // Convert date and time to a moment object for filtering
+    const filterDate = date ? moment(date, "YYYY-MM-DD") : null;
+    const filterTime = time ? moment(time, "HH:mm") : null;
+
     const parks = await Parking.findAll({
       include: {
         model: Booking,
         required: false,
       },
+      where: search
+        ? {
+            [Op.or]: {
+              name: {
+                [Op.like]: `%${search}%`,
+              },
+              description: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          }
+        : {},
     });
 
     const currentTime = moment();
 
     for (const park of parks) {
-      let status = "free";
+      let satisfiesFilter = true;
 
       park.dataValues.rentTime = park.dataValues.Bookings;
       delete park.dataValues.Bookings;
+
+      // Check if any bookings conflict with the provided date and time
+      if (filterDate && filterTime) {
+        const filter = moment(
+          `${filterDate.format("YYYY-MM-DD")}T${filterTime.format("HH:mm")}`
+        );
+
+        const hasConflict = park.dataValues.rentTime.some((booking) => {
+          const startTime = moment(booking.startTime);
+          const endTime = moment(booking.endTime);
+
+          return filter.isBetween(startTime, endTime, null, "[)");
+        });
+
+        if (hasConflict) {
+          satisfiesFilter = false;
+        }
+      }
+
+      park.dataValues.satisfiesFilter = satisfiesFilter;
+    }
+
+    for (const park of parks) {
+      let status = "free";
+
       for (const booking of park.dataValues.rentTime) {
         const startTime = moment(booking.startTime);
         const endTime = moment(booking.endTime);
@@ -32,6 +76,8 @@ async function all(req, res, next) {
 
       park.dataValues.status = status;
     }
+
+    // Clean up rentTime details for output
     for (const park of parks) {
       park.dataValues.rentTime = park.dataValues.rentTime.map((booking) => {
         const data = {};
@@ -43,7 +89,13 @@ async function all(req, res, next) {
       });
     }
 
-    req.final.data = { parks };
+    // Filter out reserved parks if date and time are provided
+    const filteredParks =
+      filterDate && filterTime
+        ? parks.filter((park) => park.dataValues.satisfiesFilter)
+        : parks;
+
+    req.final.data = { parks: filteredParks };
     req.final.status = 200;
     return next();
   } catch (e) {
