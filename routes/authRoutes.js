@@ -1,10 +1,11 @@
 const express = require("express");
 const { registerUser, loginUser } = require("../controllers/authController");
-const { validationMiddleware } = require("../middlewares");
+const { validationMiddleware, decryptRequestBody, encryptResponseBody } = require("../middlewares");
 const { body } = require("express-validator");
 
 const router = express.Router();
 
+router.use(decryptRequestBody);
 router.post(
   "/register",
   [
@@ -37,5 +38,6 @@ router.post(
   validationMiddleware,
   loginUser
 );
+router.use(encryptResponseBody);
 
 module.exports = router;

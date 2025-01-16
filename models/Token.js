@@ -27,7 +27,11 @@ const Token = sequelize.define(
     },
     sessionKey: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+    },
+    publicKey: {
+      type: DataTypes.STRING(1000),
+      allowNull: false,
     },
     expiresAt: {
       type: DataTypes.DATE,

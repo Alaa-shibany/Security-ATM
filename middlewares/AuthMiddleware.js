@@ -55,6 +55,8 @@ const authMiddleware = async (req, res, next) => {
       // Attach user to request object for further use in the route
       req.user = user;
       req.token = userToken; // Optionally include token info
+      req.sessionKey = userToken.sessionKey;
+      req.userPublicKey = userToken.publicKey;
 
       next(); // Proceed to the next middleware or route handler
     });
