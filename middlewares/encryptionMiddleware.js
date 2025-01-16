@@ -1,34 +1,42 @@
 const fs = require("fs");
 const JSEncrypt = require("node-jsencrypt");
+const crypto = require("crypto");
 
 // Load the server's private key
 const serverPrivateKey = fs.readFileSync("./keys/private.pem", "utf8");
+const generateKey = () => {
+  let res = "";
+  for (let i = 0; i < 3; i++) {
+    res += (Math.random() * 100000).toString("36");
+  }
+  return res.slice(0, 24);
+};
 
 // Middleware to decrypt the request body
 const decryptRequestBody = (req, res, next) => {
   const { encryptedData } = req.body;
 
   try {
-    if (encryptedData) {
-      const jsEncrypt = new JSEncrypt({ default_key_size: "2048" });
-      jsEncrypt.setPrivateKey(serverPrivateKey);
+    const jsEncrypt = new JSEncrypt({ default_key_size: "2048" });
+    jsEncrypt.setPrivateKey(serverPrivateKey);
 
-      const decryptedData = [];
-      for (const chunk of encryptedData) {
-        const decStr = jsEncrypt.decrypt(chunk);
-        if (decStr === false) {
-          throw new Error("error while encryption data.");
-        }
-
-        decryptedData.push(decStr);
+    const decryptedData = [];
+    for (const chunk of encryptedData) {
+      const decStr = jsEncrypt.decrypt(chunk);
+      if (decStr === false) {
+        throw new Error("error while encryption data.");
       }
 
-      const data = JSON.parse(decryptedData.join(""));
-      req.userPublicKey = data.publicKey;
-
-      delete data.publicKey;
-      req.body = data;
+      decryptedData.push(decStr);
     }
+
+    const data = JSON.parse(decryptedData.join(""));
+    req.userPublicKey = data.publicKey;
+    req.sessionKey = generateKey();
+
+    delete data.publicKey;
+    req.body = data;
+
     req.final = { data: {}, status: 0 };
     next();
   } catch (err) {

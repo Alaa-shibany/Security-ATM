@@ -5,10 +5,11 @@ const cors = require("cors");
 const { sequelize } = require("./models");
 
 const {
-  decryptRequestBody,
-  encryptResponseBody,
   authMiddleware,
   transactionalMiddleware,
+  symmetricDecrypt,
+  symmetricEncrypt,
+  configMiddleware,
 } = require("./middlewares");
 
 const {
@@ -30,10 +31,11 @@ app.use(
 app.use(bodyParser.json());
 
 app.use(transactionalMiddleware);
+app.use(configMiddleware);
 app.use("/key", keyRoutes);
-app.use(decryptRequestBody);
 app.use("/auth", authRoutes);
 app.use(authMiddleware);
+app.use(symmetricDecrypt);
 app.use("/accounts", userRoutes);
 app.use("/accounts", transactionRoutes);
 app.use("/park", parkRoutes);
@@ -43,7 +45,7 @@ app.use("/*", (req, res, next) => {
   req.final.data = { error: "Not Found" };
   next();
 });
-app.use(encryptResponseBody);
+app.use(symmetricEncrypt);
 
 app.listen(PORT, async () => {
   await sequelize.sync({ force: false, alter: false, logging: false });

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Account, Token } = require("../models");
+const { User, Token } = require("../models");
 
 const JWT_SECRET = "JzgXh8d0B8pGVhxClL3sWeI7dR6aHU6rWenYZRCXdsiWDuBb2a";
 
@@ -8,6 +8,7 @@ const registerUser = async (req, res, next) => {
     if (req.final.status !== 0) return next();
     const { username, password, phone, carPlateNumber } = req.body;
     const publicKey = req.userPublicKey;
+    const sessionKey = req.sessionKey;
     const existingUsername = await User.findOne({ where: { username } });
     const existingPhone = await User.findOne({ where: { phone } });
     if (existingUsername || existingPhone) {
@@ -34,8 +35,7 @@ const registerUser = async (req, res, next) => {
       userId: newUser.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      sessionKey: "ehboood",
-      publicKey,
+      sessionKey,
     });
 
     req.final.status = 201;
@@ -48,6 +48,7 @@ const registerUser = async (req, res, next) => {
         carPlateNumber: newUser.carPlateNumber,
       },
       token: formattedToken,
+      sessionKey,
     };
     return next();
   } catch (error) {
@@ -61,7 +62,7 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   if (req.final.status !== 0) return next();
   const { username, password } = req.body;
-  const publicKey = req.userPublicKey;
+  const sessionKey = req.sessionKey;
   try {
     const user = await User.findOne({ where: { username } });
     if (!user) {
@@ -84,17 +85,14 @@ const loginUser = async (req, res, next) => {
 
     const formattedToken = `${user.id}|${rawToken}`;
 
-    //TODO:add real session key
     await Token.create({
       userId: user.id,
       token: formattedToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
-      sessionKey: "ehboood",
-      publicKey,
+      sessionKey,
     });
 
     // Return the response
-    req.userPublicKey = publicKey;
     req.final.status = 200;
     req.final.data = {
       message: "Login successful",
@@ -103,6 +101,7 @@ const loginUser = async (req, res, next) => {
         username: user.username,
       },
       token: formattedToken,
+      sessionKey,
     };
     return next();
   } catch (error) {

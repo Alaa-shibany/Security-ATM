@@ -2,13 +2,18 @@ const {
   authMiddleware,
   isAdminMiddleware,
   isEmployeeMiddleware,
-} = require("./AuthMiddleware");
+} = require("./authMiddleware");
 const {
   encryptResponseBody,
   decryptRequestBody,
 } = require("./encryptionMiddleware");
 const { validationMiddleware } = require("./validationMiddleware");
 const { transactionalMiddleware } = require("./transactionalMiddleware");
+const {
+  symmetricDecrypt,
+  symmetricEncrypt,
+} = require("./symmetricEncryptionMiddleware");
+const { configMiddleware } = require("./configMiddleware");
 
 module.exports = {
   authMiddleware,
@@ -18,4 +23,7 @@ module.exports = {
   isAdminMiddleware,
   isEmployeeMiddleware,
   transactionalMiddleware,
+  symmetricDecrypt,
+  symmetricEncrypt,
+  configMiddleware,
 };
