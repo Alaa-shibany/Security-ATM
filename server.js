@@ -59,9 +59,7 @@ app.use(symmetricEncrypt);
 
 const https = require('https');
 const fs = require('fs');
-app.get('/', (req, res) => {
-	res.send('<a href="/authenticate">Log in using client certificate</a>');
-});
+
 const options = {
   key: fs.readFileSync('C:\\Users\\Bcc\\Desktop\\certificates\\server_private_key.pem'),
   cert: fs.readFileSync('C:\\Users\\Bcc\\Desktop\\certificates\\server.crt'),
