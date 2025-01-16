@@ -51,8 +51,28 @@ app.use("/*", (req, res, next) => {
 app.use(signMiddleware);
 app.use(symmetricEncrypt);
 
-app.listen(PORT, async () => {
-  await sequelize.sync({ force: false, alter: false, logging: false });
+// app.listen(PORT, async () => {
+//   await sequelize.sync({ force: false, alter: false, logging: false });
 
-  console.log(`Server is running on port ${PORT}`);
+//   console.log(`Server is running on port ${PORT}`);
+// });
+
+const https = require('https');
+const fs = require('fs');
+app.get('/', (req, res) => {
+	res.send('<a href="/authenticate">Log in using client certificate</a>');
+});
+const options = {
+  key: fs.readFileSync('C:\\Users\\Bcc\\Desktop\\certificates\\server_private_key.pem'),
+  cert: fs.readFileSync('C:\\Users\\Bcc\\Desktop\\certificates\\server.crt'),
+  requestCert: true, // Request client certificate
+  rejectUnauthorized: true, // Only allow valid certificates
+  ca: fs.readFileSync('C:\\Users\\Bcc\\Desktop\\certificates\\root.crt'),
+}
+
+https.createServer(options, (req, res) => {
+res.writeHead(200);
+res.end('Hello, HTTPS World!');
+}).listen(3000, () => {
+console.log('Server is running on port 3000');
 });
