@@ -10,8 +10,10 @@ const symmetricDecrypt = (req, res, next) => {
       const decryptedData = CryptoJS.TripleDES.decrypt(
         encryptedData,
         sessionKey,
-        { mode: CryptoJS.mode.ECB }
-      ).toString();
+        {
+          mode: CryptoJS.mode.ECB,
+        }
+      ).toString(CryptoJS.enc.Utf8);
 
       req.body = JSON.parse(decryptedData);
     }
@@ -32,13 +34,6 @@ const symmetricEncrypt = (req, res, next) => {
     const encryptedData = CryptoJS.TripleDES.encrypt(data, sessionKey, {
       mode: CryptoJS.mode.ECB,
     }).toString();
-    console.log(data);
-    console.log(encryptedData);
-    console.log(
-      CryptoJS.TripleDES.decrypt(encryptedData, sessionKey, {
-        mode: CryptoJS.mode.ECB,
-      }).toString()
-    );
 
     res.status(req.final.status).json({ encryptedData });
   } catch (error) {
