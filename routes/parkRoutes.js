@@ -10,12 +10,15 @@ const {
 router.get(
   "/all",
   [
-    query("search").optional().isString(),
-    query("date").optional().isDate().withMessage("date must be a date"),
-    query("time")
-      .optional()
-      .isTime({ hourFormat: "hour24", mode: "withSeconds" })
+    query("search").optional({ values: "falsy" }).isString(),
+    query("date")
+      .optional({ values: "falsy" })
+      .isDate()
       .withMessage("date must be a date"),
+    query("time")
+      .optional({ values: "falsy" })
+      .isTime({ hourFormat: "hour24", mode: "withSeconds" })
+      .withMessage("time must be a time"),
   ],
   validationMiddleware,
   parkController.all
