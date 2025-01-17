@@ -68,7 +68,7 @@ const options = {
   cert: fs.readFileSync("./certificates/server.crt"),
   ca: fs.readFileSync("./certificates/root.crt"),
   requestCert: true, // Request client certificate
-  rejectUnauthorized: false, // Only allow valid certificates
+  rejectUnauthorized: true, // Only allow valid certificates
 };
 
 https.createServer(options, app).listen(PORT, async () => {
