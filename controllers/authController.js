@@ -44,6 +44,7 @@ const registerUser = async (req, res, next) => {
       user: {
         id: newUser.id,
         username: newUser.username,
+        userType: newUser.userType,
         phone: newUser.phone,
         carPlateNumber: newUser.carPlateNumber,
       },
@@ -101,6 +102,7 @@ const loginUser = async (req, res, next) => {
       user: {
         id: user.id,
         username: user.username,
+        userType: user.userType,
       },
       token: formattedToken,
       sessionKey,
