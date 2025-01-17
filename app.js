@@ -18,6 +18,7 @@ const {
   parkRoutes,
   transactionRoutes,
   userRoutes,
+  bookingRoutes,
 } = require("./routes");
 
 const app = express();
@@ -43,6 +44,7 @@ app.use(verifyMiddleware);
 app.use("/accounts", userRoutes);
 app.use("/accounts", transactionRoutes);
 app.use("/park", parkRoutes);
+app.use("/booking", bookingRoutes);
 app.use("/*", (req, res, next) => {
   if (req.final.status != 0) return next();
   req.final.status = 404;

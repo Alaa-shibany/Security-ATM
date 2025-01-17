@@ -1,6 +1,5 @@
 const moment = require("moment");
-const { Parking, Booking, User, Account } = require("../models");
-const { isTimeIntersecting } = require("../utils");
+const { Parking, Booking } = require("../models");
 const { Op } = require("sequelize");
 
 async function all(req, res, next) {
@@ -220,94 +219,10 @@ async function deletePark(req, res, next) {
   }
 }
 
-async function reservePark(req, res, next) {
-  try {
-    if (req.final.status !== 0) return next();
-    const { parkId, date, time, duration, cardId, pin } = req.body;
-
-    const park = await Parking.findByPk(parkId);
-
-    const userId = req.userId;
-    const user = await User.findByPk(userId, {
-      include: [
-        {
-          model: Account,
-          required: true,
-        },
-      ],
-    });
-
-    const account = user.Accounts.find((e) => e.id === cardId);
-    if (!account) {
-      req.final.data = { error: "card doesn't exist" };
-      req.final.status = 500;
-      return next();
-    }
-    if (account.pin !== pin) {
-      req.final.data = { error: "wrong pin" };
-      req.final.status = 500;
-      return next();
-    }
-    const price = duration * park.price;
-    if (account.balance < price) {
-      req.final.data = { error: "Insufficient Funds" };
-      req.final.status = 401;
-      return next();
-    }
-
-    const bookings = await Booking.findAll({
-      where: {
-        parkingId: parkId,
-        endTime: {
-          [Op.gte]: new Date(),
-        },
-      },
-    });
-
-    const startTime = new Date(date + " " + time).toLocaleString("sv-Se");
-    const endTime = moment(new Date(startTime))
-      .add(duration, "hours")
-      .toLocaleString("sv-Se");
-
-    isTimeIntersecting(
-      bookings.map((e) => ({ startTime: e.startTime, endTime: e.endTime })),
-      startTime,
-      endTime
-    );
-
-    const booking = await Booking.create({
-      parkingId: parkId,
-      accountId: cardId,
-      startTime,
-      endTime,
-      cost: duration * park.price,
-    });
-    Account.update(
-      {
-        balance: account.balance - price,
-      },
-      {
-        where: {
-          id: account.id,
-        },
-      }
-    );
-
-    req.final.data = { booking };
-    req.final.status = 200;
-    return next();
-  } catch (e) {
-    req.final.data = { error: e.message };
-    req.final.status = 500;
-    return next();
-  }
-}
-
 module.exports = {
   all,
   show,
   addPark,
   editPark,
   deletePark,
-  reservePark,
 };
