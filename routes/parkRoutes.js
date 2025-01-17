@@ -94,17 +94,17 @@ router.put(
       .isNumeric()
       .withMessage("parkId must be a number"),
     body("name", "name is missing")
-      .optional()
+      .optional({ values: "falsy" })
       .isString()
       .withMessage("name must be a string")
       .escape(),
     body("description", "description is missing")
-      .optional()
+      .optional({ values: "falsy" })
       .isString()
       .withMessage("description must be a string")
       .escape(),
     body("price", "price is missing")
-      .optional()
+      .optional({ values: "falsy" })
       .isNumeric()
       .withMessage("price must be a number"),
   ],
