@@ -72,11 +72,13 @@ router.post(
     body("name", "name is missing")
       .notEmpty()
       .isString()
-      .withMessage("name must be a string"),
+      .withMessage("name must be a string")
+      .escape(),
     body("description", "description is missing")
       .notEmpty()
       .isString()
-      .withMessage("description must be a string"),
+      .withMessage("description must be a string")
+      .escape(),
     body("price", "price is missing")
       .notEmpty()
       .isNumeric()
@@ -94,11 +96,13 @@ router.put(
     body("name", "name is missing")
       .optional()
       .isString()
-      .withMessage("name must be a string"),
+      .withMessage("name must be a string")
+      .escape(),
     body("description", "description is missing")
       .optional()
       .isString()
-      .withMessage("description must be a string"),
+      .withMessage("description must be a string")
+      .escape(),
     body("price", "price is missing")
       .optional()
       .isNumeric()
