@@ -29,10 +29,14 @@ const PORT = 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:8000",
+    origin: "https://localhost:8000",
   })
 );
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+  console.log(req.path);
+  next();
+});
 
 app.use(transactionalMiddleware);
 app.use(configMiddleware);
@@ -62,9 +66,9 @@ app.use(symmetricEncrypt);
 const options = {
   key: fs.readFileSync("./certificates/server_private_key.pem"),
   cert: fs.readFileSync("./certificates/server.crt"),
-  requestCert: true, // Request client certificate
-  rejectUnauthorized: true, // Only allow valid certificates
   ca: fs.readFileSync("./certificates/root.crt"),
+  requestCert: true, // Request client certificate
+  rejectUnauthorized: false, // Only allow valid certificates
 };
 
 https.createServer(options, app).listen(PORT, async () => {
