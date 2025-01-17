@@ -10,7 +10,7 @@ const {
 router.get(
   "/all",
   [
-    query("search").optional({ values: "falsy" }).isString(),
+    query("search").optional({ values: "falsy" }).isString().trim(),
     query("date")
       .optional({ values: "falsy" })
       .isDate()
@@ -41,13 +41,15 @@ router.post(
   "/add",
   [
     body("name", "name is missing")
-      .notEmpty()
       .isString()
+      .trim()
+      .notEmpty()
       .withMessage("name must be a string")
       .escape(),
     body("description", "description is missing")
-      .notEmpty()
       .isString()
+      .trim()
+      .notEmpty()
       .withMessage("description must be a string")
       .escape(),
     body("price", "price is missing")
@@ -67,13 +69,15 @@ router.put(
     body("name", "name is missing")
       .optional({ values: "falsy" })
       .isString()
-      .withMessage("name must be a string")
-      .escape(),
+      .trim()
+      .escape()
+      .withMessage("name must be a string"),
     body("description", "description is missing")
       .optional({ values: "falsy" })
       .isString()
-      .withMessage("description must be a string")
-      .escape(),
+      .trim()
+      .escape()
+      .withMessage("description must be a string"),
     body("price", "price is missing")
       .optional({ values: "falsy" })
       .isNumeric()

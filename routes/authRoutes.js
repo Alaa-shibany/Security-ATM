@@ -15,20 +15,22 @@ router.post(
   [
     body("username", "username is missing")
       .isString()
-      .withMessage("username must be a string")
-      .escape(),
+      .trim()
+      .escape()
+      .withMessage("username must be a string"),
     body("password", "password is missing")
       .isString()
       .withMessage("password must be a string"),
     body("phone", "phone is missing")
-      .custom(
-        (val) =>
-          typeof val === "string" && val.length === 10 && val.match(/^[0-9]*/gm)
-      )
-      .withMessage("phone must be a string"),
+      .isString()
+      .trim()
+      .custom((val) => val.length === 10 && val.match(/^[0-9]*/gm))
+      .withMessage("phone must be a string of 10 numbers"),
     body("carPlateNumber", "carPlateNumber is missing")
-      .custom((val) => typeof val === "string" && val.match(/^[0-9]*/gm))
-      .withMessage("carPlateNumber must be a string"),
+      .isString()
+      .trim()
+      .custom((val) => val.match(/^[0-9]*/gm))
+      .withMessage("carPlateNumber must be a string of numbers"),
   ],
   validationMiddleware,
   registerUser
@@ -38,8 +40,9 @@ router.post(
   [
     body("username", "username is missing")
       .isString()
-      .withMessage("username must be a string")
-      .escape(),
+      .trim()
+      .escape()
+      .withMessage("username must be a string"),
     body("password", "password is missing")
       .isString()
       .withMessage("password must be a string"),

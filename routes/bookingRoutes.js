@@ -41,7 +41,7 @@ router.post(
 router.get(
   "/user/me",
   [
-    query("search").optional({ values: "falsy" }).isString(),
+    query("search").optional({ values: "falsy" }).isString().trim(),
     query("date")
       .optional({ values: "falsy" })
       .isDate()
@@ -65,7 +65,7 @@ router.get(
         return typeof input === "string" && !isNaN(Number(input));
       })
       .withMessage("userId must be a number"),
-    query("search").optional({ values: "falsy" }).isString(),
+    query("search").optional({ values: "falsy" }).isString().trim(),
     query("date")
       .optional({ values: "falsy" })
       .isDate()
@@ -87,7 +87,7 @@ router.get(
         return typeof input === "string" && !isNaN(Number(input));
       })
       .withMessage("parkId must be a number"),
-    query("search").optional({ values: "falsy" }).isString(),
+    query("search").optional({ values: "falsy" }).isString().trim(),
     query("date")
       .optional({ values: "falsy" })
       .isDate()
@@ -104,7 +104,7 @@ router.get(
 router.get(
   "/all",
   [
-    query("search").optional({ values: "falsy" }).isString(),
+    query("search").optional({ values: "falsy" }).isString().trim(),
     query("date")
       .optional({ values: "falsy" })
       .isDate()
