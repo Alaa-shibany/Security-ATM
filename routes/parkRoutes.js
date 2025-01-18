@@ -1,13 +1,28 @@
 const router = require("express").Router();
 
-const { body, param } = require("express-validator");
+const { body, param, query } = require("express-validator");
 const parkController = require("../controllers/parkController");
 const {
   validationMiddleware,
   isEmployeeMiddleware,
 } = require("../middlewares");
 
-router.get("/all", parkController.all);
+router.get(
+  "/all",
+  [
+    query("search").optional({ values: "falsy" }).isString().trim(),
+    query("date")
+      .optional({ values: "falsy" })
+      .isDate()
+      .withMessage("date must be a date"),
+    query("time")
+      .optional({ values: "falsy" })
+      .isTime({ hourFormat: "hour24", mode: "withSeconds" })
+      .withMessage("time must be a time"),
+  ],
+  validationMiddleware,
+  parkController.all
+);
 router.get(
   "/show/:parkId",
   [
@@ -20,48 +35,23 @@ router.get(
   validationMiddleware,
   parkController.show
 );
-router.post(
-  "/reserve",
-  [
-    body("parkId", "parkId is missing")
-      .isNumeric()
-      .withMessage("parkId must be a number"),
-    body("date", "date is missing").isDate().withMessage("date must be a date"),
-    body("time", "time is missing")
-      .isTime({
-        hourFormat: "hour24",
-        mode: "withSeconds",
-      })
-      .withMessage("time must be a time"),
-    body("duration", "duration is missing")
-      .isNumeric()
-      .withMessage("duration must be a number"),
-    body("cardId", "cardId is missing")
-      .isNumeric()
-      .withMessage("cardId must be a number"),
-    body("pin", "pin is missing")
-      .isString()
-      .isLength({ min: 4, max: 4 })
-      .custom((input) => {
-        return typeof input === "string" && !isNaN(Number(input));
-      })
-      .withMessage("pin must be a 4 digit number"),
-  ],
-  validationMiddleware,
-  parkController.reservePark
-);
+
 router.use(isEmployeeMiddleware);
 router.post(
   "/add",
   [
     body("name", "name is missing")
-      .notEmpty()
       .isString()
-      .withMessage("name must be a string"),
+      .trim()
+      .notEmpty()
+      .withMessage("name must be a string")
+      .escape(),
     body("description", "description is missing")
-      .notEmpty()
       .isString()
-      .withMessage("description must be a string"),
+      .trim()
+      .notEmpty()
+      .withMessage("description must be a string")
+      .escape(),
     body("price", "price is missing")
       .notEmpty()
       .isNumeric()
@@ -77,15 +67,19 @@ router.put(
       .isNumeric()
       .withMessage("parkId must be a number"),
     body("name", "name is missing")
-      .optional()
+      .optional({ values: "falsy" })
       .isString()
+      .trim()
+      .escape()
       .withMessage("name must be a string"),
     body("description", "description is missing")
-      .optional()
+      .optional({ values: "falsy" })
       .isString()
+      .trim()
+      .escape()
       .withMessage("description must be a string"),
     body("price", "price is missing")
-      .optional()
+      .optional({ values: "falsy" })
       .isNumeric()
       .withMessage("price must be a number"),
   ],

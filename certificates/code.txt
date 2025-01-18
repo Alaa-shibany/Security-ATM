@@ -1,0 +1,45 @@
+--------1--------
+generate rsa key for root
+-----------------
+openssl genrsa -out root.key 2048
+
+
+
+
+--------2--------
+self signed cert (root ca)
+-----------------
+openssl req -x509 -new -nodes -key root.key -sha256 -days 365 -out root.crt
+
+
+
+
+--------3--------
+createing csr for the server (you need the server key)
+-----------------
+openssl req -new -key server_private_key.pem -out server.csr -config server_config.cnf
+                      ^ ^ ^ ^ ^ ^ ^ ^ ^ ^  ^
+
+
+
+--------4--------
+signing the server's csr by our root ca
+-----------------
+openssl x509 -req -in server.csr -CA root.crt -CAkey root.key -CAcreateserial ^
+    -out server.crt -days 365 -sha256 -extfile server_config.cnf -extensions v3_req
+
+
+
+
+--------optional--------
+get public key of server cert
+------------------------
+openssl x509 -in server.crt -pubkey -noout > publickey.pem
+
+
+--------5--------
+same thing for client crt
+-----------------
+
+
+
