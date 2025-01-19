@@ -4,14 +4,6 @@ const { JSEncrypt } = require("nodejs-jsencrypt");
 // Load the server's private key
 const serverPrivateKey = fs.readFileSync("./keys/private.pem", "utf8");
 
-const generateKey = () => {
-  let res = "";
-  for (let i = 0; i < 3; i++) {
-    res += (Math.random() * 100000).toString("36");
-  }
-  return res.slice(0, 24);
-};
-
 // Middleware to decrypt the request body
 const decryptRequestBody = (req, res, next) => {
   const { encryptedData, signature } = req.body;
@@ -33,9 +25,10 @@ const decryptRequestBody = (req, res, next) => {
     const data = JSON.parse(decryptedData.join(""));
     req.userPublicKey = data.publicKey;
     req.signature = signature;
-    req.sessionKey = generateKey();
+    req.sessionKey = data.sessionKey;
 
     delete data.publicKey;
+    delete data.sessionKey;
     req.body = data;
 
     req.final = { data: {}, status: 0 };

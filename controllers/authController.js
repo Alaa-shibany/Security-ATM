@@ -49,7 +49,6 @@ const registerUser = async (req, res, next) => {
         carPlateNumber: newUser.carPlateNumber,
       },
       token: formattedToken,
-      sessionKey,
     };
     return next();
   } catch (error) {
@@ -105,7 +104,6 @@ const loginUser = async (req, res, next) => {
         userType: user.userType,
       },
       token: formattedToken,
-      sessionKey,
     };
     return next();
   } catch (error) {

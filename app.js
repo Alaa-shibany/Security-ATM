@@ -29,10 +29,6 @@ app.use(
   })
 );
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  console.log(req.path);
-  next();
-});
 
 app.use(transactionalMiddleware);
 app.use(configMiddleware);
