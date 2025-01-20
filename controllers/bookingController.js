@@ -7,6 +7,7 @@ async function createBooking(req, res, next) {
   try {
     if (req.final.status !== 0) return next();
     const { parkId, date, time, duration, cardId, pin } = req.body;
+    const signature = req.signature;
 
     const park = await Parking.findByPk(parkId);
 
@@ -45,6 +46,9 @@ async function createBooking(req, res, next) {
           [Op.gte]: new Date(),
         },
       },
+      attribute: {
+        exclude: ["signature"],
+      },
     });
 
     const startTime = new Date(date + " " + time).toLocaleString("sv-Se");
@@ -64,6 +68,7 @@ async function createBooking(req, res, next) {
       startTime,
       endTime,
       cost: duration * park.price,
+      signature,
     });
     Account.update(
       {
@@ -98,6 +103,9 @@ async function getMyBookings(req, res, next) {
     const filterTime = time ? moment(time, "HH:mm") : null;
 
     const bookings = await Booking.findAll({
+      attribute: {
+        exclude: ["signature"],
+      },
       include: [
         {
           model: Account,
@@ -182,6 +190,9 @@ async function getUserBookings(req, res, next) {
     const filterTime = time ? moment(time, "HH:mm") : null;
 
     const bookings = await Booking.findAll({
+      attribute: {
+        exclude: ["signature"],
+      },
       include: [
         {
           model: Account,
@@ -266,6 +277,9 @@ async function getParkingBookings(req, res, next) {
     const filterTime = time ? moment(time, "HH:mm") : null;
 
     const bookings = await Booking.findAll({
+      attribute: {
+        exclude: ["signature"],
+      },
       where: { parkingId: parkId },
       include: [
         {
@@ -349,6 +363,9 @@ async function getAllBookings(req, res, next) {
     const filterTime = time ? moment(time, "HH:mm") : null;
 
     const bookings = await Booking.findAll({
+      attribute: {
+        exclude: ["signature"],
+      },
       include: [
         {
           model: Account,

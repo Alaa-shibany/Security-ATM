@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("./config/DBconfig");
 
 const Booking = sequelize.define(
-  "Booking", 
+  "Booking",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -46,6 +46,10 @@ const Booking = sequelize.define(
         min: 0,
       },
     },
+    signature: {
+      type: DataTypes.STRING(1000),
+      allowNull: false,
+    },
   },
   {
     timestamps: true,
@@ -54,8 +58,8 @@ const Booking = sequelize.define(
 );
 
 Booking.associate = (models) => {
-  Booking.belongsTo(models.Account, { foreignKey: "accountId"})
-  Booking.belongsTo(models.Parking, { foreignKey: "parkingId"})
+  Booking.belongsTo(models.Account, { foreignKey: "accountId" });
+  Booking.belongsTo(models.Parking, { foreignKey: "parkingId" });
 };
 
 module.exports = Booking;

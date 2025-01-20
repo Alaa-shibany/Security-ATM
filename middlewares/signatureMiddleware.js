@@ -8,8 +8,6 @@ const serverPrivateKey = fs.readFileSync("./keys/private.pem", "utf8");
 const verifyMiddleware = (req, res, next) => {
   const { signature, body } = req;
   const publicKey = req.userPublicKey;
-  
-  
 
   if (Object.keys(body).length === 0) {
     return next();
