@@ -33,7 +33,7 @@ importers:
         specifier: ^3.11.5
         version: 3.11.5
       nodejs-jsencrypt:
-        specifier: 3.0.0-rc.1
+        specifier: ^3.0.0-rc.1
         version: 3.0.0-rc.1
       sequelize:
         specifier: ^6.37.5

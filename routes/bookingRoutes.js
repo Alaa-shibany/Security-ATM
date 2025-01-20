@@ -39,7 +39,7 @@ router.post(
 );
 
 router.get(
-  "/user/me",
+  "/me",
   [
     query("search").optional({ values: "falsy" }).isString().trim(),
     query("date")

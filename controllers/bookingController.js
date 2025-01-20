@@ -149,9 +149,9 @@ async function getMyBookings(req, res, next) {
     for (const booking of bookings) {
       const startTime = moment(booking.startTime);
       const endTime = moment(booking.endTime);
-      data.dataValues.startTime = startTime;
-      data.dataValues.duration = endTime.diff(startTime, "hours");
-      delete data.dataValues.endTime;
+      booking.dataValues.startTime = startTime;
+      booking.dataValues.duration = endTime.diff(startTime, "hours");
+      delete booking.dataValues.endTime;
     }
 
     // Filter out reserved parks if date and time are provided
@@ -232,9 +232,9 @@ async function getUserBookings(req, res, next) {
     for (const booking of bookings) {
       const startTime = moment(booking.startTime);
       const endTime = moment(booking.endTime);
-      data.dataValues.startTime = startTime;
-      data.dataValues.duration = endTime.diff(startTime, "hours");
-      delete data.dataValues.endTime;
+      booking.dataValues.startTime = startTime;
+      booking.dataValues.duration = endTime.diff(startTime, "hours");
+      delete booking.dataValues.endTime;
     }
 
     // Filter out reserved parks if date and time are provided
@@ -264,7 +264,7 @@ async function getParkingBookings(req, res, next) {
     const filterTime = time ? moment(time, "HH:mm") : null;
 
     const bookings = await Booking.findAll({
-      where: { parkId },
+      where: { parkingId: parkId },
       include: [
         {
           model: Account,
@@ -317,9 +317,9 @@ async function getParkingBookings(req, res, next) {
     for (const booking of bookings) {
       const startTime = moment(booking.startTime);
       const endTime = moment(booking.endTime);
-      data.dataValues.startTime = startTime;
-      data.dataValues.duration = endTime.diff(startTime, "hours");
-      delete data.dataValues.endTime;
+      booking.dataValues.startTime = startTime;
+      booking.dataValues.duration = endTime.diff(startTime, "hours");
+      delete booking.dataValues.endTime;
     }
 
     // Filter out reserved parks if date and time are provided
@@ -401,9 +401,9 @@ async function getAllBookings(req, res, next) {
     for (const booking of bookings) {
       const startTime = moment(booking.startTime);
       const endTime = moment(booking.endTime);
-      data.dataValues.startTime = startTime;
-      data.dataValues.duration = endTime.diff(startTime, "hours");
-      delete data.dataValues.endTime;
+      booking.dataValues.startTime = startTime;
+      booking.dataValues.duration = endTime.diff(startTime, "hours");
+      delete booking.dataValues.endTime;
     }
 
     // Filter out reserved parks if date and time are provided
