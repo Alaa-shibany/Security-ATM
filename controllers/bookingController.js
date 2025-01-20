@@ -104,6 +104,7 @@ async function getMyBookings(req, res, next) {
           attributes: [],
           where: { userId },
           required: true,
+          include: [{ model: User }],
         },
         {
           model: Parking,
@@ -187,6 +188,7 @@ async function getUserBookings(req, res, next) {
           attributes: [],
           where: { userId },
           required: true,
+          include: [{ model: User }],
         },
         {
           model: Parking,
@@ -269,9 +271,7 @@ async function getParkingBookings(req, res, next) {
         {
           model: Account,
           attributes: [],
-          include: {
-            model: User,
-          },
+          include: [{ model: User }],
         },
         {
           model: Parking,
@@ -353,9 +353,7 @@ async function getAllBookings(req, res, next) {
         {
           model: Account,
           attributes: [],
-          include: {
-            model: User,
-          },
+          include: [{ model: User }],
         },
         {
           model: Parking,
